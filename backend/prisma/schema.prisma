@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+    output   = "../generated/prisma"
+
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- ENUMS
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum TestType {
+  LIVETEST
+  HOMEWORK
+}
+
+enum TestStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum QuestionType {
+  MCQ
+  GAP_FILL
+  TRUE_FALSE_NOT_GIVEN
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+}
+
+// ---------------------------------------------------------------- MODELS
+
+model User {
+  id           String   @id @default(uuid())
+  role         Role     @default(STUDENT)
+  name         String
+  email        String   @unique
+  isVerified   Boolean  @default(false)
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Quan hệ
+  teachingClasses Class[]      @relation("ClassTeacher")
+  enrollments     Enrollment[]
+  submissions     Submission[]
+  attendances     Attendance[]
+
+  @@map("users")
+}
+
+model Class {
+  id        String   @id @default(uuid())
+  name      String
+  teacherId String   @map("teacher_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  teacher     User         @relation("ClassTeacher", fields: [teacherId], references: [id], onDelete: Restrict)
+  enrollments Enrollment[]
+  attendances Attendance[]
+  tests       Test[]
+
+  @@index([teacherId])
+  @@map("classes")
+}
+
+/// Bảng trung gian: 1 lớp có nhiều học sinh, 1 học sinh học nhiều lớp
+model Enrollment {
+  id       String   @id @default(uuid())
+  classId  String   @map("class_id")
+  userId   String   @map("user_id")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, userId])
+  @@index([userId])
+  @@map("enrollments")
+}
+
+model Test {
+  id        String     @id @default(uuid())
+  classId   String?    @map("class_id")
+  type      TestType
+  title     String
+  audioUrl  String?    @map("audio_url")
+  status    TestStatus @default(DRAFT)
+  startAt   DateTime?  @map("start_at")
+  endAt     DateTime?  @map("end_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  class       Class?       @relation(fields: [classId], references: [id], onDelete: SetNull)
+  questions   Question[]
+  submissions Submission[]
+
+  @@index([classId, status])
+  @@map("tests")
+}
+
+model Question {
+  id          String       @id @default(uuid())
+  testId      String       @map("test_id")
+  type        QuestionType
+  order       Int          @default(0)
+  /// Nội dung câu hỏi: đề bài, danh sách options, chỗ trống... tuỳ theo `type`
+  contentJson Json         @map("content_json")
+  /// Đáp án đúng: { "value": "B" } hoặc { "values": ["cat", "dog"] }
+  answerKey   Json         @map("answer_key")
+  score       Float        @default(1)
+
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([testId, order])
+  @@map("questions")
+}
+
+model Submission {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  testId          String   @map("test_id")
+  /// Bài làm: { "<questionId>": "B", "<questionId>": ["cat"] }
+  answersJson     Json     @map("answers_json")
+  score           Float?
+  teacherFeedback String?  @map("teacher_feedback")
+  submittedAt     DateTime? @map("submitted_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, testId]) // mỗi học sinh 1 bài nộp / 1 đề (bỏ nếu cho nộp nhiều lần)
+  @@index([testId])
+  @@map("submissions")
+}
+
+model Attendance {
+  id        String           @id @default(uuid())
+  classId   String           @map("class_id")
+  userId    String           @map("user_id")
+  date      DateTime         @db.Date
+  status    AttendanceStatus @default(PRESENT)
+  note      String?
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, userId, date])
+  @@index([classId, date])
+  @@map("attendance")
+}
