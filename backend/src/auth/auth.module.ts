@@ -5,12 +5,14 @@ import { TokenService } from './token.service';
 import { PrimaModule } from 'prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { JwtAccessStrategy } from './guards/jwt-access.strategy';
+import { JwtRefreshStrategy } from './guards/jwt-refresh.strategy';
 @Module({
   imports : [PrimaModule,
              JwtModule.register({}),
              PassportModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService]
+  providers: [AuthService, TokenService, JwtAccessStrategy, JwtRefreshStrategy]
 })
 export class AuthModule {}
