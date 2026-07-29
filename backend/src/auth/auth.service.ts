@@ -1,4 +1,5 @@
 import { Injectable, ConflictException, Inject, BadRequestException } from '@nestjs/common';
+import { TokenService } from './token.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { VerifyOTPDto } from './dto/Verify-otp';
@@ -102,6 +103,9 @@ export class AuthService {
         if (!isValid) {
             throw new BadRequestException('Mật khẩu không đúng');
         }
+        return {id: user.id, email}
+    }
+    async logout(){
 
     }
 }
