@@ -7,10 +7,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtAccessStrategy } from './guards/jwt-access.strategy';
 import { JwtRefreshStrategy } from './guards/jwt-refresh.strategy';
+import { MailModule } from 'src/mail/mail.module';
 @Module({
   imports : [PrimaModule,
              JwtModule.register({}),
-             PassportModule
+             PassportModule,
+             MailModule
   ],
   controllers: [AuthController],
   providers: [AuthService, TokenService, JwtAccessStrategy, JwtRefreshStrategy]

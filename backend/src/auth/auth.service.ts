@@ -74,7 +74,6 @@ export class AuthService {
                     name: pending.name,
                     passwordHash : pending.passwordHash,
                     isVerified: true,
-                    score: '0'
                 },
             });
             await this.redis.del(key);
