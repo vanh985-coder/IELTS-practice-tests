@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { PublicRoute } from './components/route/PublicRoute';
-import { ProtectedRoute } from './components/route/ProtectedRoute';
-import AuthPage from './pages/AuthPage';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { PublicRoute } from "./components/route/PublicRoute";
+import { ProtectedRoute } from "./components/route/ProtectedRoute";
+import AuthPage from "./pages/AuthPage";
 
 // Một component Dashboard tạm thời để test chức năng Protected Route
 const DashboardMock = () => {
@@ -21,9 +21,11 @@ function App() {
         <Routes>
           {/* Luồng Public: Dành cho khách CHƯA đăng nhập */}
           <Route element={<PublicRoute />}>
-            <Route path="/auth" element={<AuthPage />} />
-            {/* Chuyển hướng trang chủ tạm về auth nếu chưa có Landing Page */}
-            <Route path="/" element={<Navigate to="/auth" replace />} />
+            <Route path="/login" element={<AuthPage />} />
+            {/* Giữ tương thích URL cũ */}
+            <Route path="/auth" element={<Navigate to="/login" replace />} />
+            {/* Chuyển hướng trang chủ tạm về login nếu chưa có Landing Page */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
           </Route>
 
           {/* Luồng Protected: Dành cho user ĐÃ đăng nhập */}
