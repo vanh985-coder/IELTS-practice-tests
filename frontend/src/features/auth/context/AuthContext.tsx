@@ -1,7 +1,7 @@
 // 1. Import thêm useEffect
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { type User } from '../types/auth.type'; 
-import { setAccessToken } from '../api/axios';
+import { setAccessToken } from '../../../api/axios';
 import { authApi } from '../api/auth.api';
 
 interface AuthContextType {
