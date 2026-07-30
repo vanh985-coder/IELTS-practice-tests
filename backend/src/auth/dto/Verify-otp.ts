@@ -1,4 +1,13 @@
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+
 export class VerifyOTPDto {
-    email! : string;
-    otp! : string
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => String(value))
+  otp!: string;
 }

@@ -18,27 +18,37 @@ export class AuthService {
                  private mailService : MailService,
                  @Inject(REDIS_CLIENT) private readonly redis : Redis
     ){}
-    private hashOtp(otp : string) : string {
+    private hashOtp(otp : string | number) : string {
         const secret = this.config.get<string>('OTP_SECRET')
         if (!secret){
             throw new Error('OTP_SECRET is missing');
         }
-        return createHmac('sha256', secret).update(otp).digest('hex');
+        return createHmac('sha256', secret).update(String(otp)).digest('hex');
     }
     async register(dto : RegisterDto){
         const email = dto.email.toLowerCase().trim();
+        const name = (dto.name ?? dto.fullName ?? '').trim();
+        const password = dto.password?.trim();
+
+        if (!name) {
+            throw new BadRequestException('Tên không được để trống');
+        }
+        if (!password) {
+            throw new BadRequestException('Mật khẩu không được để trống');
+        }
+
         const exist = await this.prisma.user.findUnique({
             where :{
                 email : email
             }
         })
         if (exist) throw new ConflictException('Email đã được sử dụng');
-        const passwordHash = await bcrypt.hash(dto.password, 10)
+        const passwordHash = await bcrypt.hash(password, 10)
         const otp = randomInt(0, 1_000_000).toString().padStart(6, '0');
         const key = `pending:${email}`;
         await this.redis.multi()
               .hset(key, {
-                name: dto.name,
+                name,
                 passwordHash,
                 otpHash: this.hashOtp(otp),
                 attempts: 0,

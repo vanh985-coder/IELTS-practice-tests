@@ -5,7 +5,7 @@ export const authApi = {
         return api.post('/auth/login', { email, password });
     },
     register(email: string, password: string, fullName: string) {
-        return api.post('/auth/register', { email, password, fullName });
+        return api.post('/auth/register', { email, password, name: fullName });
     },
     logout() {
         return api.post('/auth/logout');
