@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./features/auth/context/AuthContext"
 import { PublicRoute } from "./components/route/PublicRoute";
 import { ProtectedRoute } from "./components/route/ProtectedRoute";
-import AuthPage from "./pages/AuthPage";
+import {AuthPage} from "./features/auth/pages/AuthPage";
 
 // Một component Dashboard tạm thời để test chức năng Protected Route
 const DashboardMock = () => {
