@@ -8,13 +8,17 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtAccessStrategy } from './guards/jwt-access.strategy';
 import { JwtRefreshStrategy } from './guards/jwt-refresh.strategy';
 import { MailModule } from 'src/mail/mail.module';
+import { RolesGuard } from './guards/roles.guard';
 @Module({
-  imports : [PrimaModule,
-             JwtModule.register({}),
-             PassportModule,
-             MailModule
-  ],
+  imports: [PrimaModule, JwtModule.register({}), PassportModule, MailModule],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, JwtAccessStrategy, JwtRefreshStrategy]
+  providers: [
+    AuthService,
+    TokenService,
+    JwtAccessStrategy,
+    JwtRefreshStrategy,
+    RolesGuard,
+  ],
+  exports: [JwtAccessStrategy, JwtRefreshStrategy, RolesGuard],
 })
 export class AuthModule {}

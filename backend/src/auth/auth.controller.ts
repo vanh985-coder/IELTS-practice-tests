@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, Res, HttpCode, HttpStatus, UseGuards} from '@nestjs/common';
+import { Controller, Post, Get, Body, Req, Res, HttpCode, HttpStatus, UseGuards} from '@nestjs/common';
 import type { Request, Response, CookieOptions } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/Register-dto';
@@ -49,6 +49,12 @@ export class AuthController {
         res.cookie(REFRESH_COOKIE, refreshToken, this.cookieOptions());
         return { accessToken, user: { id: user.id, email: user.email } };  
     }
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    async getProfile(@Req() req){
+        return this.authService.GetProfile(req.user.userId)
+    }
+
 
     @Post('logout')
     @UseGuards(JwtAuthGuard)

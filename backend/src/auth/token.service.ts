@@ -3,7 +3,6 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { REDIS_CLIENT } from "src/redis/redis.module";
 import { randomUUID, createHash, timingSafeEqual } from 'crypto';
-import * as bcrypt from 'bcrypt'
 import Redis from "ioredis";
 @Injectable()
 export class TokenService {
@@ -54,7 +53,7 @@ export class TokenService {
         if (matches(await this.redis.get(`refresh:${userId}`))) return true;
 
         if (matches(await this.redis.get(`refresh:grace:${userId}`))) {
-            throw new ConflictException('Đang refresh, thử lại sau');   // race, KHÔNG huỷ phiên
+            throw new ConflictException('Đang refresh, thử lại sau');   
         }
         await this.redis.del(`refresh:${userId}`, `refresh:grace:${userId}`);
         throw new UnauthorizedException('Phiên không hợp lệ');

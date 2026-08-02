@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, Inject, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
@@ -36,7 +36,6 @@ export class AuthService {
         if (!password) {
             throw new BadRequestException('Mật khẩu không được để trống');
         }
-
         const exist = await this.prisma.user.findUnique({
             where :{
                 email : email
@@ -106,15 +105,28 @@ export class AuthService {
             }
         })
         if (!user){
-            throw new BadRequestException('Tên đăng nhập không tồn tại')
+            throw new UnauthorizedException('Email hoặc mật khẩu không đúng')
         }
         const isValid = await bcrypt.compare(dto.password, user.passwordHash);
         if (!isValid) {
-            throw new BadRequestException('Mật khẩu không đúng');
+            throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
         }
         return {id: user.id, email}
     }
     async logout(){
 
+    }
+    async GetProfile(userId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+            id: true,
+            email: true,
+            role: true,
+            },
+        });
+
+        if (!user) throw new UnauthorizedException();
+        return user;
     }
 }
