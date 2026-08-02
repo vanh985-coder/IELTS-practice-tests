@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { createHash } from 'crypto';
 import { TokenService } from './token.service';
-
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 describe('TokenService', () => {
   let service: TokenService;
   let redis: any;
@@ -156,7 +156,36 @@ describe('TokenService', () => {
     const TOKEN_HOP_LE = 'refresh-token-hop-le';
     const HASH_HOP_LE = createHash('sha256').update(TOKEN_HOP_LE).digest('hex');
     it('Cấp cặp refresh token mới khi token hợp lệ', async()=>{
+        setupRedis(HASH_HOP_LE);
         const result = await service.rotate(USER_ID, EMAIL, TOKEN_HOP_LE);
+        expect(result).toEqual({
+            accessToken: 'access-gia',
+            refreshToken: 'refresh-gia',
+        });
+        expect(redis.del).not.toHaveBeenCalled();
     })
+    it('throw ConflictException nhưng KHÔNG huỷ phiên khi token khớp grace', async()=>{
+        const tokenCu = 'refresh-token-cu';
+        const hashCu = createHash('sha256').update(tokenCu).digest('hex');
+        setupRedis(HASH_HOP_LE, hashCu); 
+        await expect(
+            service.rotate(USER_ID, EMAIL, tokenCu)
+        ).rejects.toThrow(ConflictException)
+        expect(redis.del).not.toHaveBeenCalled();
+    })
+    it('huỷ toàn bộ phiên khi token không khớp cả current lẫn grace', async()=>{
+        setupRedis(HASH_HOP_LE, null);
+        await expect(
+            service.rotate(USER_ID, EMAIL, 'token-gia')
+        ).rejects.toThrow(UnauthorizedException)
+        expect(redis.del).toHaveBeenCalledWith(`refresh:${USER_ID}`, `refresh:grace:${USER_ID}`);
+    })
+    it('throw UnauthorizedException khi không tìm thấy refresh token', async () => {
+        setupRedis(null);
+
+        await expect(
+            service.rotate(USER_ID, EMAIL, TOKEN_HOP_LE),
+        ).rejects.toThrow(UnauthorizedException);
+    });
   })
 });
