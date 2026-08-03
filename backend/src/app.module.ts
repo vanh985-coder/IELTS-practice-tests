@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { MailModule } from './mail/mail.module';
 import { ConfigModule } from '@nestjs/config';
+import { AdminModule } from './admin/admin.module';
 @Module({
   imports: [AuthModule, 
             RedisModule, 
@@ -12,7 +13,8 @@ import { ConfigModule } from '@nestjs/config';
             ConfigModule.forRoot({
             isGlobal: true,        
               envFilePath: '.env',
-            })
+            }),
+            AdminModule
           ],
   controllers: [AppController],
   providers: [AppService],

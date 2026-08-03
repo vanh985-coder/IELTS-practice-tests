@@ -10,4 +10,5 @@ module.exports = {
     '^prisma/(.*)$': '<rootDir>/prisma/$1',
     '^src/(.*)$': '<rootDir>/src/$1',
   },
+  modulePathIgnorePatterns: ['<rootDir>/dist/'],
 };
