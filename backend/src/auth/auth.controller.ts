@@ -54,8 +54,6 @@ export class AuthController {
     async getProfile(@Req() req){
         return this.authService.GetProfile(req.user.userId)
     }
-
-
     @Post('logout')
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)

@@ -113,9 +113,6 @@ export class AuthService {
         }
         return {id: user.id, email}
     }
-    async logout(){
-
-    }
     async GetProfile(userId: string) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
