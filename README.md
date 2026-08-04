@@ -4,8 +4,8 @@ Web for IELTS practice tests
 ## Chạy test
 
 ```bash
-npm test              # unit test (40)
-npm run test:int      # integration test (cần Docker)
+npm test              
+npm run test:int      
 ```
 
 Integration test cần Postgres + Redis:

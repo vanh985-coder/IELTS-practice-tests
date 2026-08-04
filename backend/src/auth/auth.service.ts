@@ -1,11 +1,11 @@
 import { Injectable, ConflictException, Inject, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { TokenService } from './token.service';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service'
 import { ConfigService } from '@nestjs/config';
 import { VerifyOTPDto } from './dto/Verify-otp';
 import { RegisterDto } from './dto/Register-dto';
 import { MailService } from '../mail/mail.service'
-import { REDIS_CLIENT } from 'src/redis/redis.module';
+import { REDIS_CLIENT } from '../redis/redis.module';
 import { LoginDTO } from './dto/Login-dto';
 import { createHmac, randomInt, timingSafeEqual } from 'crypto';
 import { Prisma } from '../../generated/prisma/client';

@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException, ConflictException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
-import { REDIS_CLIENT } from "src/redis/redis.module";
+import { REDIS_CLIENT } from '../redis/redis.module';
 import { randomUUID, createHash, timingSafeEqual } from 'crypto';
 import Redis from "ioredis";
 @Injectable()

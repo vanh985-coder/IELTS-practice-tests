@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -12,6 +12,33 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: ielts_test
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7
+        ports: ['6380:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 10s
+          --health-timeout 5s --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5433/ielts_test
+      REDIS_HOST: localhost
+      REDIS_PORT: 6380
+      OTP_SECRET: ci-otp-secret
+      JWT_ACCESS_SECRET: ci-access-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret
+      NODE_ENV: test
 
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +50,9 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - run: npm ci
-
       - run: npx prisma generate
+      - run: npx prisma migrate deploy
 
-      - run: npm test
+      - run: npm test                                         
+      - run: npx jest --config jest.int.config.js --runInBand   
+      - run: npx jest --config ./test/jest-e2e.json --runInBand 
