@@ -33,6 +33,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://test:test@localhost:5433/ielts_test
+      REDIS_URL: redis://localhost:6380
       REDIS_HOST: localhost
       REDIS_PORT: 6380
       OTP_SECRET: ci-otp-secret

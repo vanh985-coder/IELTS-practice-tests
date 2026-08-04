@@ -3,12 +3,16 @@ import { Test } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../../src/app.module';
 import { MailService } from '../../src/mail/mail.service';
+import { ConfigModule } from '@nestjs/config';
 
 export const mailMock = { sendOtp: jest.fn() };
 
 export async function createTestApp(): Promise<INestApplication> {
   const moduleRef = await Test.createTestingModule({
-    imports: [AppModule],
+    imports: [
+      ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
+      AppModule
+    ],
   })
     .overrideProvider(MailService)
     .useValue(mailMock)
