@@ -90,8 +90,8 @@ export class AuthService {
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === 'P2002') {
-                await this.redis.del(key);
-                throw new ConflictException('Email đã được sử dụng');
+                    await this.redis.del(key);
+                    throw new ConflictException('Email đã được sử dụng');
                 }
             }
             throw e;
